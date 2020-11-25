@@ -6,6 +6,11 @@ set -o pipefail
 declare -r init_type='{{ node_deb_init }}'
 declare -r service_name='{{ node_deb_package_name }}'
 
+if [ "$1" = 'upgrade' ]; then
+  rm -rf "{{ node_deb_install_dir }}/$service_name/app/node_modules"
+  exit
+fi
+
 if [[ "$init_type" == 'auto' || "$init_type" == 'systemd' || "$init_type" == 'upstart' || "$init_type" == 'sysv' ]]; then
   if hash systemctl 2> /dev/null; then
     systemctl disable "$service_name.service" && \
