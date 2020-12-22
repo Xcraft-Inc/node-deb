@@ -66,6 +66,7 @@ log_warn() {
 architecture=
 cli_entrypoint=
 daemon_entrypoint=
+daemon_requires=
 package_name=
 package_version=
 executable_name=
@@ -653,6 +654,15 @@ if [ -z "$daemon_entrypoint" ]; then
 fi
 log_debug "The daemon entrypoint has been set to: $daemon_entrypoint"
 
+# Set the daemon requires
+if [ -z "$daemon_requires" ]; then
+  daemon_requires=$(jq -r '.node_deb.daemon.requires' package.json)
+  if [[ "$daemon_requires" == 'null' ]] && [[ "$init" != 'none' ]]; then
+    die 'Daemon requires must be set in .node_deb.daemon.requires in package.json'
+  fi
+fi
+log_debug "The daemon requires has been set to: $daemon_requires"
+
 # Set the CLI entrypoint
 if [ -z "$cli_entrypoint" ]; then
   cli_entrypoint=$(jq -r '.node_deb.entrypoints.cli' package.json)
@@ -738,6 +748,7 @@ replace_vars() {
     -e "s/{{ node_deb_package_version }}/$(escape "$package_version")/g" \
     -e "s/{{ cli_entrypoint }}/$(escape "$cli_entrypoint")/g" \
     -e "s/{{ daemon_entrypoint }}/$(escape "$daemon_entrypoint")/g" \
+    -e "s/{{ daemon_requires }}/$(escape "$daemon_requires")/g" \
     -e "s/{{ node_deb_package_description }}/$(escape "$package_description")/g" \
     -e "s/{{ node_deb_package_maintainer }}/$(escape "$package_maintainer")/g" \
     -e "s/{{ node_deb_package_dependencies }}/$(escape "$package_dependencies")/g" \
