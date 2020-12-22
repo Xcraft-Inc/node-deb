@@ -3,6 +3,7 @@
 [Unit]
 Description={{ node_deb_package_description }}
 Requires=network.target {{ daemon_requires }}
+After={{ daemon_requires }}
 
 [Service]
 Type=simple
